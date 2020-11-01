@@ -2,7 +2,7 @@
   "name": "amdrouteenodes",
   "version": "1.0.0",
   "description": "Routee Node-RED. Created by AMD Telecom",
-  "homepage": "",
+  "homepage": "https://github.com/andreassidi/node-red-contrib-routee",
   "license": "Apache-2.0",
   "private": true,
   "scripts": {},
