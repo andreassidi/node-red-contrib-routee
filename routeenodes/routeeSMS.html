@@ -1,0 +1,139 @@
+<script type="text/javascript">
+    RED.nodes.registerType('routeeSMS', {
+        category: 'Routee',
+        color: '#cccccc',
+        defaults: {
+            name: { value: "Send SMS" },
+            routeefrom: { value: "" },
+            routeeto: { value: "" },
+            routeemessage: { value: "" },
+            routeetoken: { value: "" },
+            routeesecret: { value: "" }
+        },
+        inputs: 1,
+        outputs: 1,
+        order: 4,
+        button: {
+            onclick: function () {
+                let authorization_code = authorizationCode(this.routeetoken, this.routeesecret);
+                sendSMS(authorization_code, this.routeefrom, this.routeeto, this.routeemessage);
+            }
+        },
+        icon: "envelope.svg",
+        label: function () {
+            return this.name || "Send SMS";
+        }
+    });
+</script>
+
+
+<script type="text/x-red" data-template-name="routeeSMS">
+    <p>Fill the following inputs</p>
+    <div class="form-row routee_cl" id="routee_id" method="get" action="http://localhost:1880/routee/bearer">
+        <label for="node-input-routeefrom"><i class="fa fa-user-circle-o"></i> From: </label>
+        <input type="number" id="node-input-routeefrom" placeholder=""><br/>
+
+        <label for="node-input-routeeto"><i class="fa fa-comments-o"></i> To: </label>
+        <input type="number" id="node-input-routeeto" placeholder=""><br/> 
+
+        <label for="node-input-routeemessage"><i class="fa fa-envelope"></i> Message: </label>
+        <textarea type="text" id="node-input-routeemessage" placeholder=""></textarea><br/>
+        <hr>
+        <p>Fill these inputs if your token has expired</p>
+        <label for="node-input-routeetoken"><i class="fa fa-key"></i> Token:</label>
+        <input type="text" id="node-input-routeetoken" placeholder="test">
+
+        <label for="node-input-routeesecret"><i class="fa fa-lock"></i> Secret:</label>
+        <input type="text" id="node-input-routeesecret" placeholder="test"><br/>
+       
+        <p id="response_pre"></p>
+    </div>
+</script>
+<script type="text/x-red" data-help-name="routeeSMS">
+    <p>Node to find the number of characters in payload</p>
+</script>
+
+<script>
+    function sendSMS(authorization_code, from, to, message) {
+        let form = {
+            authorizationCode: authorization_code,
+            from: from,
+            to: to,
+            message: message
+        };
+
+        let formData = JSON.stringify(form);
+        let routee_url = window.location.origin + '/routee/send_sms'
+
+        $.ajax({
+            url: routee_url,
+            ContentLength: formData.length,
+            type: 'post',
+            contentType: 'application/json',
+            data: JSON.stringify(form),
+            success: function (data, textStatus, jQxhr) {
+                console.log(data);
+            },
+            error: function (jqXhr, textStatus, errorThrown) {
+                console.log(errorThrown);
+            }
+        });
+    };
+
+
+    function authorizationCode(token_rte, secret_rte) {
+
+        let regexRule = new RegExp(/[.*#<>+\-?^${}()|[\]\\]/g);
+
+        if (token_rte.length > 64 || secret_rte.length > 64) {
+            console.log('Token or Secret is too long');
+            return 0;
+        }
+        if (regexRule.test(token_rte) || regexRule.test(secret_rte)) {
+            console.log(token_rte, secret_rte);
+            console.log('Special characters are not allowed');
+            return 0;
+        }
+        let stringBeforeBase64Encode = token_rte + ':' + secret_rte,
+            stringAfterBase64Encode = btoa(stringBeforeBase64Encode);
+
+        return stringAfterBase64Encode;
+    }
+</script>
+
+
+<style>
+    #node-input-message-rte {
+        width: 70%
+    }
+
+    #red-ui-palette-header-Routee {
+        background-image: url(/icons/node-red-contrib-routeeSMS/routeelogo3.png);
+        /*background-color: rgb(0 0 62) !important;
+           color: white;
+           background-position: right;
+           background-size: 46px 22px;*/
+        background-repeat: no-repeat;
+        background-size: 147px 36px !important;
+        background-position: center !important;
+
+    }
+
+    #red-ui-palette-base-category-Routee {
+        /*background: rgb(2,0,36);*/
+        background: linear-gradient(90deg, rgb(88 84 146) 0%, rgb(112 112 255) 58%, rgb(169 182 243) 90%, rgb(172 190 241) 98%);
+
+    }
+
+    #red-ui-palette-header-Routee>span {
+        opacity: 0;
+
+    }
+
+    #red-ui-palette-header-Routee:hover {
+        background-image: url(/icons/node-red-contrib-routeeSMS/routeelogo3.png) !important;
+        background-repeat: no-repeat !important;
+        background-size: 147px 36px !important;
+        background-position: center !important;
+    }
+</style>
