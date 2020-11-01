@@ -1,5 +1,5 @@
 {
-  "name": "amdrouteenodes",
+  "name": "node-red-contrib-amdrouteenodes",
   "version": "1.0.0",
   "description": "Routee Node-RED. Created by AMD Telecom",
   "homepage": "https://github.com/andreassidi/node-red-contrib-routee",
