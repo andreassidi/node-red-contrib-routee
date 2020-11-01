@@ -1,0 +1,38 @@
+{
+  "name": "amdrouteenodes",
+  "version": "1.0.0",
+  "description": "Routee Node-RED. Created by AMD Telecom",
+  "homepage": "",
+  "license": "Apache-2.0",
+  "private": true,
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [
+    "node-red",
+    "routee",
+    "amd-telecom",
+    "amd",
+    "nodes"
+  ],
+  "author": {
+    "name": "Sidiropoulos Andreas",
+    "email": "andreascidi@gmail.com"
+  },
+  "node-red": {
+    "nodes": {
+      "routeeSMS": "routeenodes/routeeSMS.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "contributors": [],
+  "dependencies": {
+    "nodejs-base64-encode": "^1.1.0",
+    "querystring": "^0.2.0",
+    "request": "^2.88.2"
+  }
+}
