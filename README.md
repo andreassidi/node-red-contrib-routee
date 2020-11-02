@@ -1,3 +1,3 @@
 # node-red-contrib-routee
-#installation
+installation
 npm install https://github.com/andreassidi/node-red-contrib-routee
