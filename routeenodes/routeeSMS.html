@@ -15,8 +15,8 @@
         order: 4,
         button: {
             onclick: function () {
-                let authorization_code = authorizationCode(this.routeetoken, this.routeesecret);
-                sendSMS(authorization_code, this.routeefrom, this.routeeto, this.routeemessage);
+                let authorization_code = authorizationCode(this.routeetoken.trim(), this.routeesecret.trim());
+                sendSMS(authorization_code, this.routeefrom.trim(), this.routeeto.trim(), this.routeemessage.trim());
             }
         },
         icon: "envelope.svg",
@@ -116,8 +116,8 @@
         background-repeat: no-repeat;
         background-size: 147px 36px !important;
         background-position: center !important;
-        color: blue ;
-    	background-color: white ;
+	color: blue;
+    	background-color: white;
 
     }
 
@@ -137,7 +137,7 @@
         background-repeat: no-repeat !important;
         background-size: 147px 36px !important;
         background-position: center !important;
-        color: blue !important;
+	color: blue !important;
     	background-color: white !important;
     }
 </style>
