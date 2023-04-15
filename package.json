@@ -1,0 +1,36 @@
+{
+  "name": "node-red-contrib-routee",
+  "version": "1.0.0",
+  "description": "Routee Node-RED node. Created by Andreas Sidiropoulos",
+  "homepage": "",
+  "license": "Apache-2.0",
+  "private": true,
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [
+    "node-red",
+    "routee",
+    "amd-telecom",
+    "amd telecom"
+  ],
+  "author": {
+    "name": "Sidiropoulos Andreas",
+    "email": "andreascidi@gmail.com"
+  },
+  "node-red": {
+    "nodes": {
+      "routeeSMS": "routeenodes/routeeSMS.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "contributors": [],
+  "dependencies": {
+    "nodejs-base64-encode": "^1.1.0",
+    "https": "^1.0.0"
+  }
+}

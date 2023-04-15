@@ -1,0 +1,304 @@
+<script type="text/javascript">
+    RED.nodes.registerType('routeeSMS', {
+
+        category: 'Routee',
+        color: '#cccccc',
+        defaults: {
+            name: { value: 'Send SMS' },
+            routeeFrom: { value: String('') },
+            routeeTo: { value: String('') },
+            routeeMessage: { value: String('') },
+            routeeToken: { value: String('') },
+            routeeSecret: { value: String('') },
+            dataFromInputNode: { value: true },
+            authSpace: { value: 'common' },
+            isCommonAuthSpaceInUse: { value: true }
+        },
+        inputs: 1,
+        outputs: 1,
+        order: 4,
+        button: {
+            onclick: function () {
+
+                let bearerToken = String('');
+
+                bearerToken = authorizationCode(this.routeeToken.trim(), this.routeeSecret.trim());
+                sendSMS(bearerToken, this.routeeFrom.trim(), this.routeeTo.trim(), this.routeeMessage.trim(), this.id);
+            }
+        },
+        icon: '../icons/node-red-contrib-routee/sms.svg',
+        label: function () {
+            return this.name || 'Send SMS';
+        }
+    });
+</script>
+
+
+<script type="text/html" data-template-name="routeeSMS">
+
+    <div class="form-row routee_cl" >
+        <h3 class="title">Send message</h3>
+        <label for="node-input-routeeFrom">
+            <i class="fa fa-user-circle-o"></i> From: 
+        </label>
+        <input type="number" id="node-input-routeeFrom" placeholder="+44XXXXXXXXX">
+        <br/>
+
+        <label for="node-input-routeeTo">
+            <i class="fa fa-comments-o"></i> To: 
+        </label>
+        <input type="number" id="node-input-routeeTo" placeholder="+44XXXXXXXXX">
+        <br/> 
+
+        <label for="node-input-routeeMessage">
+            <i class="fa fa-envelope"></i> Message: 
+        </label>
+        <textarea type="text" id="node-input-routeeMessage" placeholder="Type the SMS message.."></textarea>
+        <br/>
+        
+        <hr>
+        <h3 class="title">Authorization settings</h3>
+        <label for="node-input-routeeToken">
+            <i class="fa fa-key"></i> Token:
+        </label>
+        <input type="password" id="node-input-routeeToken" placeholder="Enter the token">
+        <br/>
+
+        <label for="node-input-routeeSecret">
+            <i class="fa fa-lock"></i> Secret:
+        </label>
+        <input type="password" id="node-input-routeeSecret" placeholder="Enter the secret">
+        <br/>
+        
+        <input type="checkbox" class="checkbox-with-text" id="node-input-routeecheckbox" onclick="showTokenSecret()">
+        <label for="node-input-routeecheckbox" class="checkbox-label auto-width">
+            Show token & secret
+        </label>
+        <br/>
+
+        <input type="checkbox" class="checkbox-with-text" id="node-input-isCommonAuthSpaceInUse" onload="enableAuthSpaceInput(this.checked)" onclick="enableAuthSpaceInput(this.checked)" checked>
+        <label for="node-input-isCommonAuthSpaceInUse" class="checkbox-label auto-width">
+            Is the bearer authotization space common?
+        </label>
+        <br/>
+        <label for="node-input-authSpace" class="auto-width">
+            Type the authorization space name
+        </label>
+        <input type="text" id="node-input-authSpace" placeholder="common" disabled>
+        <br/>
+        
+        <hr>
+        <h3 class="title">SMS node settings</h3>
+        <input type="checkbox"  class="checkbox-with-text" id="node-input-dataFromInputNode" checked>
+        <label for="node-input-dataFromInputNode" class="auto-width">
+            When there are data in the UI and in an input node then the data from the input node always takes priority
+        </label>
+        
+        <br/>
+        <br/>
+
+        <hr>
+        <p>
+            <h3 class="title">Prerequisites</h3>
+            The node can be used in different ways. 
+            To send messages it is essential to have created an account on the go.routee.net platform. 
+            You will need to provide the app id and app secret keys which you will find on the <a href="https://go.routee.net">Routee</a> platform.
+            <br/>
+
+            <h3 class="title">How to use this node</h3>
+            You can either pass all the data as input to the node, in the format of the following payload, or fill out the form above 
+            with the necessary information. There is also the option for hybrid use, i.e. some information to fill in the form, 
+            such as sender, app id and app secret, and some others to be provided as input to the node, such as recipient and message.
+            
+            If there are fields filled in the form but also as input to the node then the node will give priority to those that come as 
+            input and will consider them as the correct data. There is an option to disable this function and you can apply it by unchecking 
+            the option above
+           
+            you have to type the from and to addresses correctly, without any space. There is not any normallization process. Add country prefix in the phone numbers
+            All properties below are optional 
+            <pre>
+              <code>
+            {
+                "from":"string", 
+                "to":"string",
+                "message":"text", 
+                "token":"string",
+                "secret":"string",
+                "bearer":"string"
+            }
+                </code>
+            </pre>
+        </p>
+    </div>
+</script>
+
+<script type="text/html" data-help-name="routeeSMS">
+    <p>Node to send transactional SMSs</p>
+</script>
+
+<script>
+
+    function enableAuthSpaceInput(isAuthSpaceCheckboxChecked) {
+
+        let inputAuthSpace = document.getElementById('node-input-authSpace');
+
+        if (isAuthSpaceCheckboxChecked) {
+            inputAuthSpace.removeAttribute('enabled');
+            inputAuthSpace.setAttribute('disabled', '');
+            inputAuthSpace.placeholder = 'common';
+            inputAuthSpace.value = 'common';
+            return;
+        }
+
+        inputAuthSpace.removeAttribute('disabled');
+        inputAuthSpace.setAttribute('enabled', '');
+
+        return;
+    }
+
+    function getNodeStatusElement(nodeId) {
+
+        if (nodeId.includes('.')) {
+            nodeId = nodeId.replace('.', '\\.');
+        }
+
+        return document.querySelector(`#${nodeId} > .red-ui-flow-node-status-group > .red-ui-flow-node-status`);
+    }
+
+    function changeNodeStatus(nodeId, status, delay) {
+
+        let statusElement = getNodeStatusElement(nodeId);
+
+        if (status === 'delivered') {
+            statusElement.setAttribute('class', 'red-ui-flow-node-status red-ui-flow-node-status-dot-green');
+            statusElement.nextElementSibling.textContent = "message delivered";
+        }
+
+        if (status === 'failed') {
+            statusElement.setAttribute('class', 'red-ui-flow-node-status red-ui-flow-node-status-dot-red');
+            statusElement.nextElementSibling.textContent = "An error has occurred";
+        }
+
+        if (status === 'standby') {
+            statusElement.setAttribute('class', 'red-ui-flow-node-status red-ui-flow-node-status-dot-grey');
+            statusElement.nextElementSibling.textContent = "Stand by";
+        }
+
+        setTimeout(() => {
+            statusElement.setAttribute('class', 'red-ui-flow-node-status red-ui-flow-node-status-dot-grey');
+            statusElement.nextElementSibling.textContent = 'Stand by';
+        }, delay);
+
+    }
+
+    function showTokenSecret() {
+
+        let tokenElement = document.getElementById('node-input-routeeToken');
+        let secretElemenet = document.getElementById('node-input-routeeSecret');
+
+        if (tokenElement.type === 'password' && secretElemenet.type === 'password') {
+            tokenElement.type = 'text';
+            secretElemenet.type = 'text';
+            return;
+        }
+
+        tokenElement.type = 'password';
+        secretElemenet.type = 'password';
+
+        return;
+    }
+
+    function sendSMS(authorizationCode, from, to, message, nodeId) {
+
+        let form = {
+            authorizationCode: authorizationCode,
+            from: from,
+            to: to,
+            message: message
+        };
+        let formData = JSON.stringify(form);
+        let routeeUrl = window.location.origin + '/routee/sendSms'
+
+        $.ajax({
+            url: routeeUrl,
+            ContentLength: formData.length,
+            type: 'post',
+            contentType: 'application/json',
+            data: JSON.stringify(form),
+            success: function (data, textStatus, jQxhr) {
+                changeNodeStatus(nodeId, 'delivered', 5000);
+            },
+            error: function (jqXhr, textStatus, errorThrown) {
+                changeNodeStatus(nodeId, 'failed', 5000);
+            }
+        });
+    };
+
+    function authorizationCode(tokenRoutee, secretRoutee) {
+
+        let regexRule = new RegExp(/[.*#<>+\-?^${}()|[\]\\]/g);
+        let stringBeforeBase64Encode = String('');
+        let stringAfterBase64Encode = String('');
+
+        if (tokenRoutee.length > 64 || secretRoutee.length > 64) {
+            throw new Error('Token or Secret is too long');
+        }
+
+        if (regexRule.test(tokenRoutee) || regexRule.test(secretRoutee)) {
+            throw new Error('Special characters are not allowed');
+        }
+
+        stringBeforeBase64Encode = tokenRoutee + ':' + secretRoutee;
+        stringAfterBase64Encode = btoa(stringBeforeBase64Encode);
+
+        return stringAfterBase64Encode;
+    }
+</script>
+
+<style>
+    #node-input-message-rte {
+        width: 70%;
+    }
+
+    #red-ui-palette-header-Routee {
+        background-image: url(/icons/node-red-contrib-routee/routeelogo.png);
+        background-repeat: no-repeat;
+        background-size: 147px 36px !important;
+        background-position: center !important;
+        color: blue;
+        background-color: white;
+    }
+
+    #red-ui-palette-base-category-Routee {
+        background: linear-gradient(90deg, rgb(88 84 146) 0%, rgb(112 112 255) 58%, rgb(169 182 243) 90%, rgb(172 190 241) 98%);
+    }
+
+    #red-ui-palette-header-Routee>span {
+        opacity: 0;
+    }
+
+    #red-ui-palette-header-Routee:hover {
+        background-image: url(/icons/node-red-contrib-routee/routeelogo.png) !important;
+        background-repeat: no-repeat !important;
+        background-size: 147px 36px !important;
+        background-position: center !important;
+        color: blue !important;
+        background-color: white !important;
+    }
+
+    .checkbox-with-text {
+        width: 8% !important;
+    }
+
+    .checkbox-label {
+        margin-top: 2% !important;
+    }
+
+    .title {
+        margin-bottom: 2% !important;
+    }
+
+    .auto-width {
+        width: auto !important;
+    }
+</style>
