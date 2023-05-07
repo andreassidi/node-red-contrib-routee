@@ -91,7 +91,7 @@
         <h3 class="title">SMS node settings</h3>
         <input type="checkbox"  class="checkbox-with-text" id="node-input-dataFromInputNode" checked>
         <label for="node-input-dataFromInputNode" class="auto-width">
-            When there are data in the UI and in an input node then the data from the input node always takes priority
+            When the UI form is populated with data and the node accepts data as input, then the data from the input node always takes priority
         </label>
         
         <br/>
@@ -112,10 +112,15 @@
             
             If there are fields filled in the form but also as input to the node then the node will give priority to those that come as 
             input and will consider them as the correct data. There is an option to disable this function and you can apply it by unchecking 
-            the option above
-           
-            you have to type the from and to addresses correctly, without any space. There is not any normallization process. Add country prefix in the phone numbers
+            the option above.
+            <br/>
+            <br/>
+            You have to type the "from" and "to" addresses correctly, without any space. There is not any normallization process.
+            Add country prefix code in the phone numbers.
+            
+            <h3 class="title">Data input payload</h3>
             All properties below are optional 
+            <br/>
             <pre>
               <code>
             {
@@ -124,7 +129,7 @@
                 "message":"text", 
                 "token":"string",
                 "secret":"string",
-                "bearer":"string"
+                "authSpace":"string"
             }
                 </code>
             </pre>

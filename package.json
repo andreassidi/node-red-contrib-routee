@@ -14,7 +14,8 @@
     "node-red",
     "routee",
     "amd-telecom",
-    "amd telecom"
+    "amd telecom",
+    "send sms"
   ],
   "author": {
     "name": "Sidiropoulos Andreas",

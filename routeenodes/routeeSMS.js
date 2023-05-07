@@ -20,7 +20,12 @@ module.exports = (RED) => {
 
             bearerToken = routeeAuthorization.getRouteeBearer(authorizationSpace);
 
-            //const smsResponse = await sendSMS(bearerToken, body.from, body.to, body.message);
+            const smsResponse = await sendSMS(
+                bearerToken,
+                body.from,
+                body.to,
+                body.message
+            );
 
             if (smsResponse[1] === 200) {
                 response.status(200).send('SMS sent successfully');
@@ -49,8 +54,8 @@ module.exports = (RED) => {
         node.on('input', async (msg) => {
 
             /*
-                config holds data from UI inputs
-                msg.payload holds data from input node
+                config argument holds data from UI inputs
+                msg.payload object holds data from input node
             */
 
             let payloadSMS = {
@@ -82,9 +87,12 @@ module.exports = (RED) => {
 
             await setBearer(payloadSMS, msg.payload, areInputNodeDataPrioritized);
 
-            //const response = await sendSMS(routeeAuthorization.getRouteeBearer(payloadSMS.authSpace), payloadSMS.from, payloadSMS.to, payloadSMS.message);
-            let response = []
-            response[1] = 200;
+            const response = await sendSMS(
+                routeeAuthorization.getRouteeBearer(payloadSMS.authSpace),
+                payloadSMS.from,
+                payloadSMS.to,
+                payloadSMS.message
+            );
             onResponseChangeNodeStatus(node, response[1]);
 
             msg.payload = {
@@ -121,9 +129,9 @@ async function setBearer(payloadSMS, msgPayload, areInputNodeDataPrioritized) {
 }
 
 /*
-    setSMSBodyProperties replaces all properties exists inside payload with mainProperties arg.
-    If mainProperties arg is undefuned it gets values from fallbackProperties
-    payload, mainProperties and fallbackProperties must have same length and same properties 
+    The function setSMSBodyProperties replaces all properties exists inside payload with mainProperties arg.
+    If mainProperties arg is undefined it gets values from fallbackProperties.
+    Payload, mainProperties and fallbackProperties must have same length and same properties 
 */
 function setSMSBodyProperties(payload, mainProperties, fallbackProperties) {
 
